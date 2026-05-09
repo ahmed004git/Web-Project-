@@ -5,8 +5,9 @@ import jwt from "jsonwebtoken";
 import connectDB from "./db.js";
 import authRoutes from "./routes/auth.js";
 import studentRoutes from "./routes/studentRoutes.js";
-import { authenticateToken, isAdmin } from "./middleware/authMiddleware.js";
+import { protect, isAdmin } from "./middleware/authMiddleware.js";
 dotenv.config();
+import attendanceRoutes from "./routes/attendanceRoutes.js";  
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,15 +25,18 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
-
+app.use("/api/attendance", attendanceRoutes);
+app.use("/api/auth", authRoutes);
 // Protected Routes
-app.get("/api/dashboard", authenticateToken, (req, res) => {
+app.get("/api/dashboard", protect, (req, res) => {
   res.json({ message: `Welcome ${req.user.role}`, user: req.user });
 });
 
-app.get("/api/admin", authenticateToken, isAdmin, (req, res) => {
+
+app.get("/api/admin", protect, isAdmin, (req, res) => {
   res.json({ message: "Admin panel access granted" });
 });
+
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

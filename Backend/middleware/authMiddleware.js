@@ -1,22 +1,37 @@
 import jwt from "jsonwebtoken";
+import User from "../models/user.js";
 
-export const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+// middleware protection 
+export const protect = async (req, res, next) => {
+  let token;
 
-  if (!token) return res.status(401).json({ message: "Access token required" });
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: "Invalid or expired token" });
-    req.user = user;
+  if (!token) {
+    return res.status(401).json({ message: "Not authorized, no token" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    req.user = await User.findById(decoded.id).select("-password");
+
     next();
-  });
+  } catch (error) {
+    return res.status(401).json({ message: "Token failed" });
+  }
 };
 
+
 export const isAdmin = (req, res, next) => {
-  if (req.user?.role === "admin") {
+  if (req.user && req.user.role === "admin") {
     next();
   } else {
-    res.status(403).json({ message: "Admin access only" });
+    return res.status(403).json({ message: "Admin access only" });
   }
 };

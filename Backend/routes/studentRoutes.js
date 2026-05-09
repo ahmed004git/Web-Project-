@@ -1,13 +1,12 @@
 import express from "express";
 import Student from "../models/student.js";
-import { authenticateToken, isAdmin } from "../middleware/authMiddleware.js";
-
+import { protect, isAdmin } from "../middleware/authMiddleware.js";
 
 
 const router = express.Router();
 
 // create student 
-router.post("/", authenticateToken, isAdmin, async(req, res)=>{
+router.post("/", protect, isAdmin, async(req, res)=>{
     try {
         const student= await Student.create(req.body);
 
@@ -22,7 +21,7 @@ router.post("/", authenticateToken, isAdmin, async(req, res)=>{
 });
 
 //getting students 
-router.get("/", authenticateToken, async (req,res)=>{
+router.get("/", protect, async (req,res)=>{
     try{
         const students = await Student.find();
         res.json(students);
@@ -34,7 +33,7 @@ router.get("/", authenticateToken, async (req,res)=>{
 });
 
 //updating student 
-router.put("/:id", authenticateToken, isAdmin, async (req, res) => {
+router.put("/:id", protect, isAdmin, async (req, res) => {
   try {
     const updatedStudent = await Student.findByIdAndUpdate(
       req.params.id,
@@ -50,7 +49,7 @@ router.put("/:id", authenticateToken, isAdmin, async (req, res) => {
 });
 
 //delete student 
-router.delete("/:id", authenticateToken, isAdmin, async (req, res) => {
+router.delete("/:id", protect, isAdmin, async (req, res) => {
   try {
     const deletedStudent = await Student.findByIdAndDelete(req.params.id);
 
