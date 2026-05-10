@@ -8,13 +8,21 @@ const router = express.Router();
 // add marks
 router.post("/", protect, isAdmin, async (req, res) => {
   try { 
+    console.log("Adding marks with data:", req.body);
     const {student, subject, marks, total_marks, semester} = req.body;
+    
+    if (!student || !subject || marks === undefined || !total_marks || !semester) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    
     const mark = new Marks({student, subject, marks, total_marks, semester});
     await mark.save(); 
+    console.log("Marks saved:", mark);
     
     res.status(201).json(mark);
 
   } catch (err) {
+    console.log("Error saving marks:", err);
     res.status(500).json({ error: err.message });
   }
 });

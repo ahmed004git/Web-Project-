@@ -41,10 +41,14 @@ router.put("/:id", protect, isAdmin, async (req, res) => {
       { new: true }
     );
 
+    if (!updatedStudent) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
     res.json(updatedStudent);
 
   } catch (err) {
-    res.status(500).json({ error:"internal server Error" });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
@@ -52,11 +56,27 @@ router.put("/:id", protect, isAdmin, async (req, res) => {
 router.delete("/:id", protect, isAdmin, async (req, res) => {
   try {
     const deletedStudent = await Student.findByIdAndDelete(req.params.id);
+    if (!deletedStudent) {
+  return res.status(404).json({ message: "Student not found" });
+}
 
     res.json({ message: "Student deleted successfully" });
 
   } catch (err) {
     res.status(500).json({ error:"Internal Server Error"});
+  }
+});
+
+// get student by user id
+router.get("/by-user/:userId", protect, async (req, res) => {
+  try {
+    const student = await Student.findOne({ user: req.params.userId });
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+    res.json(student);
+  } catch (err) {
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 

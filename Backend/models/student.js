@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 
 const studentSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: false
+    },
     name:{
         type:String,
         required:true
@@ -20,6 +25,10 @@ const studentSchema = new mongoose.Schema({
    department: {
       type: String,
       required: true
+    },
+    year: {
+      type: Number,
+      required: false
     },
 
     semester: {
